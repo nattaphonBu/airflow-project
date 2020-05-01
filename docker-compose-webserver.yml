@@ -1,0 +1,56 @@
+version: '2.1'
+services:
+  redis:
+    image: 'redis:5.0.5'
+    ports:
+      - "6379:6379"
+    
+  postgres:
+    image: postgres:9.6
+    env_file: environment/dev/.env-webserver
+    volumes:
+      - postgres-airflow-data-local:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  webserver:
+    image: image
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./aws_credentials:/usr/local/airflow/.aws/ 
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080"
+    env_file: environment/dev/.env-webserver
+    command: webserver
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  flower:
+    image: image
+    restart: always
+    depends_on:
+        - redis
+    ports:
+        - "5555:5555"
+    env_file: environment/dev/.env-webserver
+    command: flower
+
+  scheduler:
+    image: image
+    restart: always
+    depends_on:
+      - webserver
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: environment/dev/.env-webserver
+    command: scheduler
+
+volumes:
+  postgres-airflow-data-local:

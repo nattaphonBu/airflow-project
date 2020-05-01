@@ -1,0 +1,4 @@
+docker==4.1.0
+pytest-airflow==0.0.3
+awscli==1.17.0 
+flask-bcrypt==0.7.1

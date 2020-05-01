@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+  worker:
+    image: image
+    ports:
+      - "8793:8793"
+    restart: always
+    volumes:
+      - /home/ubuntu/efs/logs:/usr/local/airflow/pw_log
+      - ./aws_credentials:/usr/local/airflow/.aws/ 
+      - ./boto_credentials/boto.cfg:/usr/local/airflow/boto.cfg
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: environment/dev/.env-worker
+    command: worker

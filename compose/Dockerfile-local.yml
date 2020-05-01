@@ -1,0 +1,22 @@
+FROM puckel/docker-airflow:1.10.7
+
+USER root
+
+COPY /script/entrypoint.sh /entrypoint.sh
+COPY /requirements/local/requirements.txt /requirements.txt
+
+ENV PATH="/usr/local/airflow/.local/bin:${PATH}"
+
+RUN apt-get update \
+    && pip install -r /requirements.txt \
+    && apt-get install curl -y \
+    && curl -SL https://get.docker.com/ | sh \
+    && usermod -aG docker airflow
+
+USER airflow
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+EXPOSE 8080
+EXPOSE 8793
+EXPOSE 5555
